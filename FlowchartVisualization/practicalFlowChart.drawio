@@ -1,0 +1,25 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36" version="29.2.10">
+  <diagram name="Seite-1" id="Cd9QoU__pW_wDe-hJIKg">
+    <mxGraphModel dx="1562" dy="924" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ZsPMYOgf5VWW62J31XGQ-5" edge="1" parent="1" source="ZsPMYOgf5VWW62J31XGQ-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="ZsPMYOgf5VWW62J31XGQ-4" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZsPMYOgf5VWW62J31XGQ-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="DOMAIN&lt;div&gt;SimplePDBParser.cs&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="180" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="ZsPMYOgf5VWW62J31XGQ-6" edge="1" parent="1" source="ZsPMYOgf5VWW62J31XGQ-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="ZsPMYOgf5VWW62J31XGQ-1" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ZsPMYOgf5VWW62J31XGQ-3" parent="1" style="whiteSpace=wrap;html=1;" value="API&lt;div&gt;MoleculeLoader.cs&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="180" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ZsPMYOgf5VWW62J31XGQ-4" parent="1" style="whiteSpace=wrap;html=1;" value="DATA&lt;div&gt;Atom.cs&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="180" y="360" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
