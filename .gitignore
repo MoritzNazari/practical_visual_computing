@@ -18,3 +18,5 @@ UserSettings/
 *.mdb
 *.opendb
 *.VC.db
+*.csproj
+*.slnx

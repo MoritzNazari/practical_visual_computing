@@ -1,48 +1,20 @@
 using System.Collections.Generic;
 using UnityEngine;
-using MoleculeReaderInterface;
-using System.Xml;
-using System;
-using System.IO;
-using System.Linq;
 
-
-public class MoleculeLoader
+public class manager : MonoBehaviour
 {
-    private readonly IEnumerable<IMoleculeReader> _readers;
-
-    // Konstruktor-Injektion: die Liste der verfügbaren Reader kommt von außen
-    public MoleculeLoader(IEnumerable<IMoleculeReader> readers)
-    {
-        _readers = readers;
-    }
-
-    public List<Atom> Load(string path)
-    {
-        string extension = Path.GetExtension(path).ToLower();
-        var reader = _readers.FirstOrDefault(r => r.CanRead(extension));
-
-        if (reader == null)
-            throw new NotSupportedException($"Kein Reader für Format {extension} registriert.");
-
-        return reader.Read(path);
-    }
-}
-
-
-/*
-public class MoleculeLoader : MonoBehaviour
-{
-    public string fileName = "1CRN.pdb";
+       public string fileName = "1CRN.pdb";
 
     // Skalierungsfaktor, da PDB-Koordinaten in Angstrom sind und in Unity sonst kaum sichtbar waeren.
     public float scaleFactor = 1.0f;
 
     void Start()
     {
-
+        MoleculeImporter importer = GetComponent<MoleculeImporter>();
+        Debug.Log(importer == null ? "Importer ist NULL!" : "Importer gefunden");
         string path = System.IO.Path.Combine(Application.streamingAssetsPath, fileName);
-        List<Atom> atoms = SimplePDBParser.ParseFile(path);
+
+        List<Atom> atoms = importer.ImportFile(path);
 
         Debug.Log($"{atoms.Count} Atome geladen aus {fileName}");
 
@@ -89,5 +61,3 @@ public class MoleculeLoader : MonoBehaviour
         }
     }
 }
-
-*/

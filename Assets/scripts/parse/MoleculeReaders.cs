@@ -1,18 +1,19 @@
-using System;
+using UnityEngine;
+using MoleculeReaderInterface;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
+using System.Globalization;
 
-// Minimaler erster Entwurf eines PDB-Parsers.
-// Ziel: ATOM-Zeilen lesen, Position + Element extrahieren.
 
-public static class SimplePDBParser
+public class PDBReader : IMoleculeReader
 {
+    public bool CanRead(string extension) => extension == ".pdb";
+    public List<Atom> Read(string path) { 
+    
     // Liest eine lokale PDB-Datei und gibt eine Liste der geparsten Atome zurück.
-    public static List<Atom> ParseFile(string filePath)
-    {
+
         var atoms = new List<Atom>();
-        var lines = File.ReadAllLines(filePath);
+        var lines = File.ReadAllLines(path);
 
         foreach (var line in lines)
         {
@@ -52,11 +53,11 @@ public static class SimplePDBParser
 
                 atoms.Add(atom);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 // Für den ersten Entwurf: fehlerhafte Zeilen einfach überspringen
                 // und loggen, statt das ganze Parsing abzubrechen.
-                Console.WriteLine($"Konnte Zeile nicht parsen: {line}\n{ex.Message}");
+                System.Console.WriteLine($"Konnte Zeile nicht parsen: {line}\n{ex.Message}");
             }
         }
 
@@ -89,4 +90,11 @@ public static class SimplePDBParser
         }
         return "X"; // Unbekannt
     }
+
+}
+
+public class PDBxReader : IMoleculeReader
+{
+    public bool CanRead(string extension) => extension is ".cif" or ".pdbx";
+    public List<Atom> Read(string path) { /* PDBx-Parsing */ return new List<Atom>(); }
 }

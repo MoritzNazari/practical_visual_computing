@@ -1,4 +1,3 @@
-
 public class Atom
 {
     public int SerialNumber;

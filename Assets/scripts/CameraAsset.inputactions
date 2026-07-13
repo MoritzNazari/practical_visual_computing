@@ -1,0 +1,46 @@
+{
+    "version": 1,
+    "name": "CameraAsset",
+    "maps": [
+        {
+            "name": "CameraHandling",
+            "id": "a9075db8-afcf-4e7d-bbfc-362e35edfb9e",
+            "actions": [
+                {
+                    "name": "Move",
+                    "type": "Button",
+                    "id": "c4e456c0-6dd6-476c-8ffc-8854d5f820e3",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "638bdb1a-8905-47d7-85f5-95c0eb9c95fd",
+                    "path": "<Keyboard>/w",
+                    "interactions": "Hold",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cf27e755-ab67-491e-a42b-cc88b7c9b20f",
+                    "path": "<Keyboard>/s",
+                    "interactions": "Hold",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
