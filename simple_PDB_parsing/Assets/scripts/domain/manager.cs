@@ -3,10 +3,13 @@ using UnityEngine;
 
 public class manager : MonoBehaviour
 {
-       public string fileName = "1CRN.pdb";
+       public string fileName = "aceton.sdf";
 
     // Skalierungsfaktor, da PDB-Koordinaten in Angstrom sind und in Unity sonst kaum sichtbar waeren.
     public float scaleFactor = 1.0f;
+
+    public float atomSize = 0.3f;
+    public float bondRadius = 0.08f;
 
     void Start()
     {
@@ -22,6 +25,8 @@ public class manager : MonoBehaviour
         {
             CreateAtomSphere(atom);
         }
+
+        CreateBonds(atoms);
     }
 
     void CreateAtomSphere(Atom atom)
@@ -34,7 +39,7 @@ public class manager : MonoBehaviour
 
         // Kleine, einheitliche Groesse fuer den ersten Test
         // (spaeter: Radius je nach Element unterschiedlich)
-        sphere.transform.localScale = Vector3.one * 0.3f;
+        sphere.transform.localScale = Vector3.one * atomSize;
 
         // Als Kind des MoleculeManager-Objekts organisieren,
         // damit die Hierarchy nicht unuebersichtlich wird
@@ -49,6 +54,45 @@ public class manager : MonoBehaviour
         renderer.material.color = GetColorForElement(atom.Element);
     }
 
+    void CreateBonds(List<Atom> atoms)
+    {
+        HashSet<Bond> createdBonds = new HashSet<Bond>();
+
+        foreach (Atom atom in atoms)
+        {
+            foreach (Bond bond in atom.Bonds)
+            {
+                if (createdBonds.Contains(bond))
+                    continue;
+
+                createdBonds.Add(bond);
+                CreateBondCylinder(bond);
+            }
+        }
+    }
+
+    void CreateBondCylinder(Bond bond)
+    {
+        Vector3 pos1 = new Vector3(bond.Atom1.X, bond.Atom1.Y, bond.Atom1.Z) * scaleFactor;
+        Vector3 pos2 = new Vector3(bond.Atom2.X, bond.Atom2.Y, bond.Atom2.Z) * scaleFactor;
+
+        Vector3 middle = (pos1 + pos2) / 2f;
+        Vector3 direction = pos2 - pos1;
+        float length = direction.magnitude;
+
+        GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+
+        cylinder.transform.position = middle;
+        cylinder.transform.up = direction.normalized;
+        cylinder.transform.localScale = new Vector3(bondRadius, length / 2f, bondRadius);
+        cylinder.transform.parent = this.transform;
+
+        cylinder.name = $"Bond_{bond.Atom1.SerialNumber}_{bond.Atom2.SerialNumber}";
+
+        Renderer renderer = cylinder.GetComponent<Renderer>();
+        renderer.material.color = GetColorForBond(bond.Type);
+    }
+
     Color GetColorForElement(string element)
     {
         switch (element)
@@ -58,6 +102,23 @@ public class manager : MonoBehaviour
             case "O": return Color.red;
             case "S": return Color.yellow;
             default: return Color.magenta; // Unbekannt/Sonstiges
+        }
+    }
+
+    Color GetColorForBond(BondType type)
+    {
+        switch (type)
+        {
+            case BondType.Single:
+                return Color.white;
+            case BondType.Double:
+                return Color.green;
+            case BondType.Triple:
+                return Color.cyan;
+            case BondType.Aromatic:
+                return Color.yellow;
+            default:
+                return Color.white;
         }
     }
 }
