@@ -1,9 +1,12 @@
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class manager : MonoBehaviour
 {
-       public string fileName = "aceton.sdf";
+       public string moleculeName = "glucose";
 
     // Skalierungsfaktor, da PDB-Koordinaten in Angstrom sind und in Unity sonst kaum sichtbar waeren.
     public float scaleFactor = 1.0f;
@@ -13,10 +16,26 @@ public class manager : MonoBehaviour
 
     void Start()
     {
+        StartCoroutine(LoadMoleculeFromPubChem(moleculeName));
+    }
+    IEnumerator LoadMoleculeFromPubChem(string compoundName) {
+
         MoleculeImporter importer = GetComponent<MoleculeImporter>();
         Debug.Log(importer == null ? "Importer ist NULL!" : "Importer gefunden");
-        string path = System.IO.Path.Combine(Application.streamingAssetsPath, fileName);
+        string url = $"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{compoundName}/SDF?record_type=3d";
 
+        using UnityWebRequest request = UnityWebRequest.Get(url);
+        yield return request.SendWebRequest();
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"Fehler beim Laden der PubChem-Datei: {request.error}");
+            yield break;
+        }
+        string sdfContent = request.downloadHandler.text;
+        string fileName = $"{compoundName}.sdf";
+        string path = Path.Combine(Application.persistentDataPath, fileName);
+        
+        File.WriteAllText(path, sdfContent);
         List<Atom> atoms = importer.ImportFile(path);
 
         Debug.Log($"{atoms.Count} Atome geladen aus {fileName}");
