@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 
 public class manager : MonoBehaviour
 {
-       public string moleculeName = "glucose";
+    public string moleculeName = "glucose";
 
     // Skalierungsfaktor, da PDB-Koordinaten in Angstrom sind und in Unity sonst kaum sichtbar waeren.
     public float scaleFactor = 1.0f;
@@ -33,6 +33,8 @@ public class manager : MonoBehaviour
         }
         string sdfContent = request.downloadHandler.text;
         string fileName = $"{compoundName}.sdf";
+        
+        // in persistentDataPath speichern wir zur Laufzeit geladene Dateien
         string path = Path.Combine(Application.persistentDataPath, fileName);
         
         File.WriteAllText(path, sdfContent);

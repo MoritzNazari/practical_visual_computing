@@ -189,8 +189,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcc9b57dcdbac3fcbb6b06b02a6f687a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::manager
-  fileName: aceton.sdf
+  moleculeName: oxygen
   scaleFactor: 1
+  atomSize: 0.3
+  bondRadius: 0.08
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
