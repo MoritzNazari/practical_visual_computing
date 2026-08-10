@@ -28,7 +28,7 @@ public class manager : MonoBehaviour
     {
 
         //StartCoroutine(LoadMoleculeFromPubChemViaName(moleculeName));
-        StartCoroutine(LoadMoleculeFromPubChemViaSMILES(moleculeSmiles));
+        //StartCoroutine(LoadMoleculeFromPubChemViaSMILES(moleculeSmiles));
     }
 
     /// <summary>
@@ -69,6 +69,13 @@ public class manager : MonoBehaviour
         CreateBonds(atoms);
     }
 
+
+    /// <summary>
+    /// Laedt die 3D-SDF-Datei zum angegebenen SMILES-String von PubChem,
+    /// legt sie im persistentDataPath ab, parst sie ueber den
+    /// <see cref="MoleculeImporter"/> und baut Atome sowie Bindungen in der Szene auf.
+    /// </summary>
+    /// <param name="compoundSmiles">SMILES-String der Verbindung, z.B. "C(C1C(C(C(C(O1)O)O)O)O)O" fuer Glucose.</param>
     IEnumerator LoadMoleculeFromPubChemViaSMILES(string compoundSmiles) {
 
         MoleculeImporter importer = GetComponent<MoleculeImporter>();
@@ -101,6 +108,13 @@ public class manager : MonoBehaviour
         CreateBonds(atoms);
     }
 
+    /// <summary>
+    /// Lädt ein Molekül von PubChem basierend auf dem angegebenen Eingabetyp (Name oder SMILES).
+    /// Gedacht für Verwendung mittelns der UI, um die Eingabe zu verarbeiten und den Ladevorgang zu starten.
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="mode"></param>
+    /// <returns></returns>
     public IEnumerator LoadMolecule(string input, MoleculeLoaderUI.MoleculeSourceType mode)
     {
 
@@ -123,7 +137,10 @@ public class manager : MonoBehaviour
         }
 
         string sdfContent = request.downloadHandler.text;
-        string fileName = $"{input}.sdf";
+
+        // behebt eventuelle mit ungültigen Dateinamen bspw bei SMILES Strings
+        string safeFileName = string.Join("_", input.Split(Path.GetInvalidFileNameChars()));
+        string fileName = $"{safeFileName}.sdf";
         string path = Path.Combine(Application.persistentDataPath, fileName);
         File.WriteAllText(path, sdfContent);
 
