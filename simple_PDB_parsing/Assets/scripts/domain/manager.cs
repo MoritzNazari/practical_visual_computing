@@ -4,6 +4,9 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 
+/// <summary>
+/// Ist aktuell primär zuständig für die Ausführung der Parser und den Aufruf des Loader Workflows
+/// </summary>
 public class manager : MonoBehaviour
 {
     public string moleculeName = "glucose";
@@ -14,10 +17,21 @@ public class manager : MonoBehaviour
     public float atomSize = 0.3f;
     public float bondRadius = 0.08f;
 
+    /// <summary>
+    /// Unity-Einstiegspunkt: startet den Ladevorgang fuer das im Inspector
+    /// gesetzte Molekuel.
+    /// </summary>
     void Start()
     {
         StartCoroutine(LoadMoleculeFromPubChem(moleculeName));
     }
+
+    /// <summary>
+    /// Laedt die 3D-SDF-Datei zum angegebenen Verbindungsnamen von PubChem,
+    /// legt sie im persistentDataPath ab, parst sie ueber den
+    /// <see cref="MoleculeImporter"/> und baut Atome sowie Bindungen in der Szene auf.
+    /// </summary>
+    /// <param name="compoundName">Trivialname der Verbindung, z. B. "glucose".</param>
     IEnumerator LoadMoleculeFromPubChem(string compoundName) {
 
         MoleculeImporter importer = GetComponent<MoleculeImporter>();
@@ -50,6 +64,11 @@ public class manager : MonoBehaviour
         CreateBonds(atoms);
     }
 
+    /// <summary>
+    /// Erzeugt eine eingefaerbte Kugel fuer ein Atom an dessen skalierter
+    /// Koordinate und haengt sie unter dieses GameObject.
+    /// </summary>
+    /// <param name="atom">Das darzustellende Atom mit Element und Koordinaten.</param>
     void CreateAtomSphere(Atom atom)
     {
         // Eine einfache Kugel pro Atom erzeugen
@@ -75,6 +94,11 @@ public class manager : MonoBehaviour
         renderer.material.color = GetColorForElement(atom.Element);
     }
 
+    /// <summary>
+    /// Visualisiert alle Bindungen der uebergebenen Atome. Da jede Bindung an
+    /// beiden beteiligten Atomen haengt, verhindert ein Set doppelte Zylinder.
+    /// </summary>
+    /// <param name="atoms">Alle Atome des Molekuels.</param>
     void CreateBonds(List<Atom> atoms)
     {
         HashSet<Bond> createdBonds = new HashSet<Bond>();
@@ -92,6 +116,12 @@ public class manager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Spannt einen Zylinder zwischen den beiden Atomen einer Bindung auf:
+    /// Position in der Mitte, Ausrichtung entlang der Verbindungsachse,
+    /// Laenge halbiert, weil Unity-Zylinder zwei Einheiten hoch sind.
+    /// </summary>
+    /// <param name="bond">Die darzustellende Bindung inklusive Bindungstyp.</param>
     void CreateBondCylinder(Bond bond)
     {
         Vector3 pos1 = new Vector3(bond.Atom1.X, bond.Atom1.Y, bond.Atom1.Z) * scaleFactor;
@@ -114,6 +144,11 @@ public class manager : MonoBehaviour
         renderer.material.color = GetColorForBond(bond.Type);
     }
 
+    /// <summary>
+    /// Ordnet einem Elementsymbol eine Darstellungsfarbe zu.
+    /// </summary>
+    /// <param name="element">Elementsymbol, z. B. "C" oder "O".</param>
+    /// <returns>Farbe des Elements, Magenta fuer unbekannte Elemente.</returns>
     Color GetColorForElement(string element)
     {
         switch (element)
@@ -126,6 +161,11 @@ public class manager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Ordnet einem Bindungstyp eine Darstellungsfarbe zu.
+    /// </summary>
+    /// <param name="type">Art der Bindung (einfach, doppelt, dreifach, aromatisch).</param>
+    /// <returns>Farbe der Bindung, Weiss als Rueckfallwert.</returns>
     Color GetColorForBond(BondType type)
     {
         switch (type)
