@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
+using TMPro;
 
 /// <summary>
 /// Ist aktuell primär zuständig für die Ausführung der Parser und den Aufruf des Loader Workflows
 /// </summary>
+[RequireComponent(typeof(MoleculeImporter))]
 public class manager : MonoBehaviour
 {
     public string moleculeName = "glucose";
+    public string moleculeSmiles = "C(C1C(C(C(C(O1)O)O)O)O)O";
 
     // Skalierungsfaktor, da PDB-Koordinaten in Angstrom sind und in Unity sonst kaum sichtbar waeren.
     public float scaleFactor = 1.0f;
@@ -23,7 +26,9 @@ public class manager : MonoBehaviour
     /// </summary>
     void Start()
     {
-        StartCoroutine(LoadMoleculeFromPubChem(moleculeName));
+
+        //StartCoroutine(LoadMoleculeFromPubChemViaName(moleculeName));
+        StartCoroutine(LoadMoleculeFromPubChemViaSMILES(moleculeSmiles));
     }
 
     /// <summary>
@@ -32,7 +37,7 @@ public class manager : MonoBehaviour
     /// <see cref="MoleculeImporter"/> und baut Atome sowie Bindungen in der Szene auf.
     /// </summary>
     /// <param name="compoundName">Trivialname der Verbindung, z. B. "glucose".</param>
-    IEnumerator LoadMoleculeFromPubChem(string compoundName) {
+    IEnumerator LoadMoleculeFromPubChemViaName(string compoundName) {
 
         MoleculeImporter importer = GetComponent<MoleculeImporter>();
         Debug.Log(importer == null ? "Importer ist NULL!" : "Importer gefunden");
@@ -61,6 +66,71 @@ public class manager : MonoBehaviour
             CreateAtomSphere(atom);
         }
 
+        CreateBonds(atoms);
+    }
+
+    IEnumerator LoadMoleculeFromPubChemViaSMILES(string compoundSmiles) {
+
+        MoleculeImporter importer = GetComponent<MoleculeImporter>();
+        Debug.Log(importer == null ? "Importer ist NULL!" : "Importer gefunden");
+        string url = $"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/{compoundSmiles}/SDF?record_type=3d";
+
+        using UnityWebRequest request = UnityWebRequest.Get(url);
+        yield return request.SendWebRequest();
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"Fehler beim Laden der PubChem-Datei: {request.error}");
+            yield break;
+        }
+        string sdfContent = request.downloadHandler.text;
+        string fileName = $"{compoundSmiles}.sdf";
+        
+        // in persistentDataPath speichern wir zur Laufzeit geladene Dateien
+        string path = Path.Combine(Application.persistentDataPath, fileName);
+        
+        File.WriteAllText(path, sdfContent);
+        List<Atom> atoms = importer.ImportFile(path);
+
+        Debug.Log($"{atoms.Count} Atome geladen aus {fileName}");
+
+        foreach (Atom atom in atoms)
+        {
+            CreateAtomSphere(atom);
+        }
+
+        CreateBonds(atoms);
+    }
+
+    public IEnumerator LoadMolecule(string input, MoleculeLoaderUI.MoleculeSourceType mode)
+    {
+
+        MoleculeImporter importer = GetComponent<MoleculeImporter>();
+        Debug.Log(importer == null ? "Importer ist NULL!" : "Importer gefunden");
+
+        string url = mode == MoleculeLoaderUI.MoleculeSourceType.Name
+            ? $"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{UnityWebRequest.EscapeURL(input)}/SDF?record_type=3d"
+            : $"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/{UnityWebRequest.EscapeURL(input)}/SDF?record_type=3d";
+
+        Debug.Log($"Lade Molekül via Typ {mode} von URL: {url}");
+
+        using UnityWebRequest request = UnityWebRequest.Get(url);
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"Fehler beim Laden: {request.error}");
+            yield break;
+        }
+
+        string sdfContent = request.downloadHandler.text;
+        string fileName = $"{input}.sdf";
+        string path = Path.Combine(Application.persistentDataPath, fileName);
+        File.WriteAllText(path, sdfContent);
+
+        List<Atom> atoms = importer.ImportFile(path);
+        Debug.Log($"{atoms.Count} Atome geladen aus {fileName}");
+
+        foreach (Atom atom in atoms) CreateAtomSphere(atom);
         CreateBonds(atoms);
     }
 
