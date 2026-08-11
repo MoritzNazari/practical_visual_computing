@@ -20,3 +20,6 @@ UserSettings/
 *.VC.db
 *.csproj
 *.slnx
+
+openai_key.txt
+*.key

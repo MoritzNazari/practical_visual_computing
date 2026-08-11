@@ -14,14 +14,14 @@ public class manager : MonoBehaviour
         Debug.Log(importer == null ? "Importer ist NULL!" : "Importer gefunden");
         string path = System.IO.Path.Combine(Application.streamingAssetsPath, fileName);
 
-        List<Atom> atoms = importer.ImportFile(path);
+        //List<Atom> atoms = importer.ImportFile(path);
 
-        Debug.Log($"{atoms.Count} Atome geladen aus {fileName}");
+        //Debug.Log($"{atoms.Count} Atome geladen aus {fileName}");
 
-        foreach (Atom atom in atoms)
+        /*foreach (Atom atom in atoms)
         {
             CreateAtomSphere(atom);
-        }
+        }*/
     }
 
     void CreateAtomSphere(Atom atom)
