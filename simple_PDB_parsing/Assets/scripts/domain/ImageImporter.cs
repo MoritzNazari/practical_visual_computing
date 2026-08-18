@@ -25,7 +25,6 @@ public class ImageUploader : MonoBehaviour
         string path = paths[0];
         byte[] imageBytes = File.ReadAllBytes(path);
 
-
         CallApi apiCaller = GetComponent<CallApi>();
         // Weiterreichen an den API-Call
         
@@ -38,6 +37,7 @@ public class ImageUploader : MonoBehaviour
     private void OnAnalysisComplete(string jsonResult)
     {
         Debug.Log($"OpenAI Response: {jsonResult}");
+        ApiCallLogViewer.PrintSummary();
         // hier später: JSON parsen und Punkte aufs Bild setzen
     }
 }

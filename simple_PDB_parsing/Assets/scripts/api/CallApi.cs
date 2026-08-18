@@ -6,6 +6,8 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Text.Encodings.Web;
+using Unity.AI.MCP.Editor.Helpers;
 
 public class CallApi : MonoBehaviour
 {
@@ -17,6 +19,32 @@ public class CallApi : MonoBehaviour
         // Key aus lokaler, nicht-committeter Datei laden
         string keyPath = Path.Combine(Application.streamingAssetsPath, "openai_key.txt");
         apiKey = File.ReadAllText(keyPath).Trim();
+
+        StartCoroutine(getExistingResponse("resp_0cddc779758934a8006a84d264c244819d94511fb77fd59bd2"));
+    }
+
+    public IEnumerator getExistingResponse(string respId)
+    {
+        // Test for getting an existing response via its ID
+        string respRetrUrl = ApiUrl + "/" + respId;
+        using UnityWebRequest testRequest = new UnityWebRequest(respRetrUrl, "GET");
+        testRequest.downloadHandler = new DownloadHandlerBuffer();
+        testRequest.SetRequestHeader("Content-Type", "application/json");
+        testRequest.SetRequestHeader("Authorization", $"Bearer {apiKey}");
+
+        Debug.Log($"Sending WebRequest to following url {respRetrUrl}");
+
+        yield return testRequest.SendWebRequest();
+
+        if (testRequest.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"OpenAI Fehler: {testRequest.error}\n{testRequest.downloadHandler.text}");
+            yield break;
+        }
+
+        string rawResponse = testRequest.downloadHandler.text;
+
+        Debug.Log($"{rawResponse}");
     }
 
     // We could think about splitting the prompt into system and user prompt, as of now this is sufficient though
@@ -24,12 +52,13 @@ public class CallApi : MonoBehaviour
     // "input": [ { ... }, { ... } ] is an Array, so there can be multiple elements each with their own role and content
     public IEnumerator SendImageToOpenAI(byte[] imageBytes, System.Action<string> onResult)
     {
+        const string modelName = "gpt-4.1-nano";
         string base64Image = System.Convert.ToBase64String(imageBytes);
         string prompt = "Analysiere dieses Bild und gib die wichtigsten Bildbestandteile mit " +
                          "vorherrschendem Molekül zurück. Antworte NUR mit JSON im angegebenen structured Format";
 
         string jsonBody = $@"{{
-            ""model"": ""gpt-4.1-nano"",
+            ""model"": ""{modelName}"",
             ""input"": [
                 {{
                     ""role"": ""user"",
@@ -101,15 +130,37 @@ public class CallApi : MonoBehaviour
 
         Debug.Log($"Sending WebRequest with following data: {jsonBody}");
 
+        //Send Request and run stopwatch
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         yield return request.SendWebRequest();
+        stopwatch.Stop();
 
         if (request.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError($"OpenAI Fehler: {request.error}\n{request.downloadHandler.text}");
+
+            ApiCallLogger.logCall(
+                endpoint: $"{modelName}/image-analysis",
+                request: jsonBody,
+                response: null,
+                success: false,
+                latencyMs: stopwatch.Elapsed.TotalMilliseconds,
+                error: request.error,
+                errorText: request.downloadHandler.text
+                );
             yield break;
         }
 
         string rawResponse = request.downloadHandler.text;
+
+        ApiCallLogger.logCall(
+            endpoint: $"{modelName}/image-analysis",
+            request: jsonBody,
+            response: rawResponse,
+            success: true,
+            latencyMs: stopwatch.Elapsed.TotalMilliseconds
+        );
+
         onResult?.Invoke(ExtractOutputTextOrRaw(rawResponse));
     }
 
