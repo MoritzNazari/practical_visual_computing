@@ -29,7 +29,7 @@ public class CallApi : MonoBehaviour
                          "vorherrschendem Molekül zurück. Antworte NUR mit JSON im angegebenen structured Format";
 
         string jsonBody = $@"{{
-            ""model"": ""gpt-4.1"",
+            ""model"": ""gpt-4.1-nano"",
             ""input"": [
                 {{
                     ""role"": ""user"",
@@ -48,35 +48,44 @@ public class CallApi : MonoBehaviour
                         ""strict"": true,
                         ""schema"": 
                         {{
-                            ""type"": ""array"",
-                            ""items"": 
+                            ""type"": ""object"",
+                            ""properties"":
                             {{
-                                ""type"": ""object"",
-                                ""properties"": 
+                                ""component_list"":
                                 {{
-                                    ""label"": {{ ""type"": ""string"" }},
-                                    ""molecule"": {{ ""type"": ""string"" }},
-                                    ""smiles"": 
-                                    {{ 
-                                        ""type"": ""string"", 
-                                        ""minLength"":   1,
-                                        ""pattern"": ""^[A-Za-z0-9@+\\-\\[\\]()=#$:./\\\\%]+$""
-                                    }},
-                                    ""point"": 
-                                    {{ 
+                                    ""type"": ""array"",
+                                    ""items"": 
+                                    {{
                                         ""type"": ""object"",
                                         ""properties"": 
-                                        {{ 
-                                            ""x"": {{ ""type"": ""number"", ""minimum"": 0, ""maximum"": 1 }},
-                                            ""y"": {{ ""type"": ""number"", ""minimum"": 0, ""maximum"": 1 }}
+                                        {{
+                                            ""label"": {{ ""type"": ""string"" }},
+                                            ""molecule"": {{ ""type"": ""string"" }},
+                                            ""smiles"": 
+                                            {{ 
+                                                ""type"": ""string"", 
+                                                ""minLength"":   1,
+                                                ""pattern"": ""^[A-Za-z0-9@+\\-\\[\\]()=#$:./\\\\%]+$""
+                                            }},
+                                            ""point"": 
+                                            {{ 
+                                                ""type"": ""object"",
+                                                ""properties"": 
+                                                {{ 
+                                                    ""x"": {{ ""type"": ""number"", ""minimum"": 0, ""maximum"": 1 }},
+                                                    ""y"": {{ ""type"": ""number"", ""minimum"": 0, ""maximum"": 1 }}
+                                                }},
+                                                ""required"": [""x"", ""y""],
+                                                ""additionalProperties"": false
+                                            }}
                                         }},
-                                        ""required"": [""x"", ""y""],
+                                        ""required"": [""label"", ""molecule"", ""smiles"", ""point""],
                                         ""additionalProperties"": false
                                     }}
-                                }},
-                                ""required"": [""label"", ""molecule"", ""smiles"", ""point""],
-                                ""additionalProperties"": false
-                            }}
+                                }}
+                            }},
+                            ""required"": [""component_list""],
+                            ""additionalProperties"": false
                         }}
                     }}
                 }},
